@@ -1,11 +1,19 @@
 import express from 'express'
-import sqlite3 from 'sqlite3'
+import { Client } from 'pg'
 
 const app = express()
 const PORT = 4000
 
-const db = new sqlite3.Database('./database/maindb.sqlite3',
-  sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE)
+const client = new Client({
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/sales',
+  ssl: {
+    rejectUnauthorized: false
+  }
+})
+
+client.connect(e => {
+  if (e) console.error(e)
+})
 
 // Avoiding CORS problem
 app.use((_req, res, next) => {
@@ -24,25 +32,23 @@ app.get('/', (_req, res) => {
 app.get('/api/view', (req, res) => {
   const p = parseInt(String(req.query.page)) || 1
   const pp = parseInt(String(req.query.per_page)) || 5
-  db.serialize(() => {
-    let total = -1
-    // statement 1
-    db.get('SELECT COUNT(*) AS len FROM sale', (err, row) => {
-      if (err) res.send(err)
-      console.log(row)
-      // ${total} must have been initilized before executing second statement.
-      total = row.len
-    })
+  let total = -1
+  // statement 1
+  client.query('SELECT COUNT(*) AS len FROM sale')
+  .then(result => {
+    // ${total} have to be initilized before executing second statement.
+    total = result.rows[0].len
     // statement 2
-    db.all(`SELECT * FROM sale LIMIT ${pp} OFFSET ${(p - 1) * pp}`, (err, row) => {
-      if (err) res.send(err)
-      console.log(row)
+    client.query(`SELECT * FROM sale LIMIT ${pp} OFFSET ${(p - 1) * pp}`)
+    .then(result => {
+      console.log(result.rows)
+      result.rows.forEach(row => row.date = fmt(row.date))
       res.json({
         "page": p,
         "per_page": pp,
         "total": total,
         "total_pages": Math.ceil(total / pp),
-        "data": row
+        "data": result.rows
       })
     })
   })
@@ -51,3 +57,12 @@ app.get('/api/view', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
 })
+
+function fmt(date: any) {
+  const d = new Date(date)
+  const padding = (v: number) => { // 0で埋めて表示する関数を定義 --- (※2)
+    const s = '00' + v
+    return s.substr(s.length - 2, 2)
+  }
+  return d.getFullYear() + '/' + padding(d.getMonth() + 1) + '/' + padding(d.getDate())
+}
