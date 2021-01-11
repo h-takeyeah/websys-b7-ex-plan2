@@ -15,7 +15,8 @@ const App = () => {
       ]}
       data={query =>
         new Promise((resolve, reject) => {
-          let url = 'http://localhost:4000/api/view?'
+          let url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000'
+          url += '/api/view?'
           url += 'per_page=' + query.pageSize
           url += '&page=' + (query.page + 1)
           fetch(url)
@@ -29,6 +30,9 @@ const App = () => {
             })
         })
       }
+      options = {{
+        search: false // 検索ボックスを消す
+      }}
     />
   </div>
   )
