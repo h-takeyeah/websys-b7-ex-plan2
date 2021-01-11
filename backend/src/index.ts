@@ -39,7 +39,10 @@ app.get('/sale', (req, res) => {
     // ${total} have to be initilized before executing second statement.
     total = result.rows[0].len
     // statement 2
-    client.query(`SELECT * FROM sale LIMIT ${pp} OFFSET ${(p - 1) * pp}`)
+    client.query(
+      'SELECT date,name,price AS proceeds '
+      + 'FROM sale NATURAL INNER JOIN inventory '
+      + `LIMIT ${pp} OFFSET ${(p - 1) * pp}`)
     .then(result => {
       console.log(result.rows)
       result.rows.forEach(row => row.date = fmt(row.date))
