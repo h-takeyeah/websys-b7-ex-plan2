@@ -29,7 +29,7 @@ app.get('/', (_req, res) => {
   res.send(`This is back-end server running on port ${PORT}`)
 })
 
-app.get('/api/view', (req, res) => {
+app.get('/sale', (req, res) => {
   const p = parseInt(String(req.query.page)) || 1
   const pp = parseInt(String(req.query.per_page)) || 5
   let total = -1

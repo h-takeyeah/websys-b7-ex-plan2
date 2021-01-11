@@ -9,14 +9,15 @@ const App = () => {
       <MaterialTable
       title='売上'
       columns={[
-        {title: 'ID', field: 'id'},
+        {title: 'ID', field: 'sale_id'},
+        {title: '売上日時', field: 'date'},
+        {title: '商品名', field: 'name'},
         {title: '売上金額', field: 'proceeds'},
-        {title: '売上日時', field: 'date'}
       ]}
       data={query =>
         new Promise((resolve, reject) => {
           let url = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000'
-          url += '/api/view?'
+          url += '/sale?'
           url += 'per_page=' + query.pageSize
           url += '&page=' + (query.page + 1)
           fetch(url)
