@@ -35,10 +35,10 @@ const MyLineChart = (props) => {
     >
       <CartesianGrid strokeDasharray='3 3' />
       <XAxis dataKey='date' />
-      <YAxis unit='¥' />
+      <YAxis unit='冊' />
       <Tooltip />
       <Legend />
-      <Line type='monotone' dataKey='proceeds' stroke='#8884d8' activeDot={{ r: 8 }} />
+      <Line type='monotone' dataKey='amount' stroke='#8884d8' activeDot={{ r: 8 }} />
     </LineChart>
   )
 }

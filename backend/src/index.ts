@@ -33,7 +33,10 @@ app.get('/sale', (req, res) => {
   const p = parseInt(String(req.query.page)) || 1
   const pp = parseInt(String(req.query.per_page)) || 5
   if (req.query.type === 'inventory') {
-    getData(res, MyQuery.inventory)
+    const id = Number(req.query.inventory_id || 1)
+    getEach(res, id)
+  } else if (req.query.type === 'inventories') {
+    getData(res, MyQuery.inventories)
   } else if (req.query.type === 'dialy') {
     getData(res, MyQuery.daily)
   } else {
@@ -89,11 +92,25 @@ function getData(res: Response, q: MyQuery) {
   })
 }
 
+function getEach(res: Response, id: any) {
+  client.query(`select date,count(1) as amount from sale where inventory_id = ${id}`)
+  .then(result => {
+    console.log(result.rows)
+    result.rows.forEach(row => {
+      if (row.data !== undefined) row.date = fmt(row.date)
+    })
+    res.json({
+      'data': result.rows
+    })
+  })
+}
+
 enum MyQuery {
   daily = 'SELECT date,sum(price) AS proceeds '
           + 'FROM sale NATURAL INNER JOIN inventory '
           + 'GROUP BY date ORDER BY date',
-  inventory = 'SELECT name,sum(price) AS proceeds '
+  inventories = 'SELECT name,sum(price) AS proceeds '
               + 'FROM sale NATURAL INNER JOIN inventory '
-              + 'GROUP BY inventory.name ORDER BY proceeds DESC'
+              + 'GROUP BY inventory.name ORDER BY proceeds DESC',
+  inventory = 'select date,count(1) as amount from sale where inventory_id = '
 }
