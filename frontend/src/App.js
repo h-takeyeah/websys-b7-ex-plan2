@@ -2,12 +2,15 @@
 import './App.css'
 import React from 'react'
 import MaterialTable from 'material-table'
-import Graph from './Graph'
+import GraphContainer from './GraphContainer'
 
 
 const App = () => {
   return (
     <React.Fragment>
+      <div className='GraphContainer'>
+        <GraphContainer />
+      </div>
       <div className='App'>
         <MaterialTable
         title='売上'
@@ -38,11 +41,8 @@ const App = () => {
         }}
         />
       </div>
-      <div className="Graph">
-        <Graph />
-      </div>
     </React.Fragment>
   )
 }
 
-export default App;
+export default App
